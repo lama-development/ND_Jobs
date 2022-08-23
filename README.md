@@ -14,4 +14,4 @@ I am not the author of these scripts. I simply converted them to be compatible w
 - [MailDelivery](https://forum.cfx.re/t/maildelivery-v1-0-2-standalone-mail-delivery-job-for-paleto-bay-grapeseed-and-sandy-shores-extra-esx-addon/168076)
 
 If you want a job compatible with ND Framework and with protection against possible exploited client events, check my latest release:
-- https://github.com/ItzEndah/TruckJob
+https://github.com/ItzEndah/TruckJob
