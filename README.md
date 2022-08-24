@@ -1,5 +1,6 @@
 # ND_Jobs
 Collection of jobs converted to ND Framework.
+This is still work on progress.
 
 > **Warning**  
 > All of the server events to pay the player **do not** validate the client request as of now.  
