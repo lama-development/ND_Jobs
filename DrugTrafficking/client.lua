@@ -1,6 +1,5 @@
-local show, JobStarted = false, false, {}
-pay = 0
-
+local JobStarted = false
+local pay = 0
 local bliplocation = vector3(2196.65, 5609.89, 53.56)
 local blip = AddBlipForCoord(bliplocation.x, bliplocation.y, bliplocation.z)
 
@@ -13,7 +12,7 @@ AddTextComponentString("Drug Trafficking Job")
 EndTextCommandSetBlipName(blip)
 
 function NewBlip()
-    local objectif = math.randomchoice(Config.pos)
+    local objectif = math.randomchoice(Config.Positions)
     local ped = GetPlayerPed(-1)
 
     local blip = AddBlipForCoord(objectif.x, objectif.y, objectif.z)
@@ -23,40 +22,47 @@ function NewBlip()
     SetBlipRouteColour(blip, 2)
 
     local coords = GetEntityCoords(ped)
-    local distance = GetDistanceBetweenCoords(coords, objectif.x, objectif.y, objectif.z, true)
+    local distance = Vdist2(coords, objectif.x, objectif.y, objectif.z)
 
     while true do
-        Citizen.Wait(0)
+        local opti = 5000
         coords = GetEntityCoords(ped)
-        distance = GetDistanceBetweenCoords(coords, objectif.x, objectif.y, objectif.z, true)
+        distance = Vdist2(coords, objectif.x, objectif.y, objectif.z)
         AddTextEntry("press_collect_drugs2", 'Press ~INPUT_CONTEXT~ to deliver the drugs')
-        if distance <= 10 then
-            DisplayHelpTextThisFrame("press_collect_drugs2")
-            if IsControlJustPressed(1, 38) then
-                pay = pay + Config.Amount
-                RemoveBlip(blip)
-                NotifChoise()
-                break
+        if distance <= 50 then
+            opti = 1000
+            if distance <= 10 then
+                opti = 2
+                DisplayHelpTextThisFrame("press_collect_drugs2")
+                if IsControlJustPressed(1, 38) then
+                    TriggerServerEvent("DrugTrafficking:DrugsDelivered", objectif)
+                    pay = pay + Config.Pay
+                    RemoveBlip(blip)
+                    ChoiceNotif()
+                    break
+                end
             end
         end
-    end
-    if IsControlJustPressed(1, 73) then
-        RemoveBlip(blip)
-        drawnotifcolor("Bring back the van.", 25)
-        StopService()
+        if IsControlJustPressed(1, 73) then
+            RemoveBlip(blip)
+            drawnotifcolor("Bring back the van.", 25)
+            StopService()
+            break
+        end
+        Wait(opti)
     end
 end
 
-function NotifChoise()
+function ChoiceNotif()
     drawnotifcolor("Press ~g~E~w~ for more drug deliveries.\nPress ~r~X~w~ if you want to stop the job", 140)
 
     local timer = 1500
     while timer >= 1 do
-        Citizen.Wait(10)
+        Wait(10)
         timer = timer - 1
 
         if IsControlJustPressed(1, 38) then
-            NewChoise()
+            NewChoice()
             break
         end
 
@@ -75,8 +81,8 @@ function NotifChoise()
     end
 end
 
-function NewChoise()
-    local route = math.randomchoice(Config.pos)
+function NewChoice()
+    local route = math.randomchoice(Config.Positions)
     local ped = GetPlayerPed(-1)
 
     local blip = AddBlipForCoord(route.x, route.y, route.z)
@@ -87,15 +93,17 @@ function NewChoise()
 
     drawnotifcolor("New location is set, press ~r~X~w~ if you want to stop the job.", 140)
     local coords = GetEntityCoords(ped)
-    local distance = GetDistanceBetweenCoords(coords, route.x, route.y, route.z, true)
+    local distance = Vdist2(coords, route.x, route.y, route.z)
 
     while true do
-        Citizen.Wait(0)
+        local opti = 5000
         coords = GetEntityCoords(ped)
-        distance = GetDistanceBetweenCoords(coords, route.x, route.y, route.z, true)
+        distance = Vdist2(coords, route.x, route.y, route.z)
         AddTextEntry("press_collect_drugs", 'Press ~INPUT_CONTEXT~ to collect the drugs')
         if distance <= 60 then
+            opti = 1000
             if distance <= 10 then
+                opti = 2
                 DisplayHelpTextThisFrame("press_collect_drugs")
                 if IsControlJustPressed(1, 38) then
                     RemoveBlip(blip)
@@ -110,11 +118,12 @@ function NewChoise()
             StopService()
             break
         end
+        Wait(opti)
     end
 end
 
 function StopService()
-    local coordsEndService = vector3(2201.32, 5616.51, 53.78)
+    local coordsEndService = Config.StartingPosition
     local ped = GetPlayerPed(-1)
     AddTextEntry("press_ranger_ha420", 'Press ~INPUT_CONTEXT~ to return the van and get the money.')
 
@@ -125,31 +134,37 @@ function StopService()
     SetBlipRouteColour(blip, 1)
 
     while true do
-        Citizen.Wait(0)
+        local opti = 5000
         local coords = GetEntityCoords(ped)
-        local distance = GetDistanceBetweenCoords(coordsEndService, coords, true)
-        if distance <= 10 then
-            DisplayHelpTextThisFrame("press_ranger_ha420")
-            if IsControlPressed(1, 38) then
-                local playerPed = PlayerPedId()
-                local vehicle = GetVehiclePedIsIn(playerPed, false)
-                if GetEntityModel(vehicle) == GetHashKey("rumpo2") then
-                    DeleteEntity(vehicle)
-                    TriggerServerEvent('DrugTrafficking:GiveReward', pay)
-                    drawnotifcolor("You've received ~g~$" .. pay .. "~w~ for completing the job.", 140)
-                    RemoveBlip(blip)
-                    JobStarted, show = false, false
-                    break
-                else
+        local distance = Vdist2(coordsEndService, coords)
+        if distance <= 50 then
+            opti = 1000
+            if distance <= 10 then
+                opti = 2
+                DisplayHelpTextThisFrame("press_ranger_ha420")
+                if IsControlJustPressed(1, 38) then
+                    local playerPed = PlayerPedId()
                     local vehicle = GetVehiclePedIsIn(playerPed, false)
-                    if GetEntityModel(vehicle) ~= GetHashKey("rumpo2") then
-                        drawnotifcolor("Bring back the van to get the money.", 140)
-                        JobStarted, show = true, true
+                    if GetEntityModel(vehicle) == GetHashKey("rumpo2") then
+                        DeleteEntity(vehicle)
+                        TriggerServerEvent("DrugTrafficking:NeedsPayment", coordsEndService)
+                        drawnotifcolor("You've received ~g~$" .. pay .. "~w~ for completing the job.", 140)
+                        RemoveBlip(blip)
+                        JobStarted = false
+                        pay = 0
                         break
+                    else
+                        local vehicle = GetVehiclePedIsIn(playerPed, false)
+                        if GetEntityModel(vehicle) ~= GetHashKey("rumpo2") then
+                            drawnotifcolor("Bring back the van to get the money.", 140)
+                            JobStarted = true
+                            break
+                        end
                     end
                 end
             end
         end
+        Wait(opti)
     end
 end
 
@@ -169,23 +184,31 @@ function StartJob()
     SetEntityAsMissionEntity(vehicle, true, true)
     SetModelAsNoLongerNeeded(vehicleName)
     JobStarted = true
-    NewChoise()
+    TriggerServerEvent("DrugTrafficking:StartedCollecting")
+    NewChoice()
 end
 
-Citizen.CreateThread(function()
+CreateThread(function()
     AddTextEntry("press_start_job", "Press ~INPUT_CONTEXT~ to start the job")
     while true do
-        Citizen.Wait(0)
+        local opti = 5000
         local ped = GetPlayerPed(-1)
         local coords = GetEntityCoords(ped)
-        local distance = GetDistanceBetweenCoords(vector3(2196.65, 5609.89, 52.4), coords, true)
-        DrawMarker(1, 2196.65, 5609.89, 52.4, 0, 0, 0, 0, 0, 0, 2.001, 2.0001, 1.5001, 255, 255, 255, 200, 0, 0, 0, 0)
-        if distance <= 2 then
-            DisplayHelpTextThisFrame("press_start_job")
-            if IsControlPressed(1, 38) then
-                StartJob()
+        local distance = Vdist2(vector3(2196.65, 5609.89, 52.4), coords)
+        if distance <= 50 and not JobStarted then
+            opti = 1000
+            if distance <= 10 then
+                opti = 2
+                DrawMarker(1, 2196.65, 5609.89, 52.4, 0, 0, 0, 0, 0, 0, 2.001, 2.0001, 1.5001, 255, 255, 255, 200, 0, 0, 0, 0)
+                if distance <= 2 then
+                    DisplayHelpTextThisFrame("press_start_job")
+                    if IsControlJustPressed(1, 38) then
+                        StartJob()
+                    end
+                end
             end
         end
+        Wait(0)
     end
 end)
 
@@ -197,10 +220,5 @@ function drawnotifcolor(text, color)
 end
 
 function math.randomchoice(d)
-    local keys = {}
-    for key, value in pairs(d) do
-        keys[#keys + 1] = key
-    end
-    index = keys[math.random(1, #keys)]
-    return d[index]
+    return d[math.random(1, #d)]
 end
