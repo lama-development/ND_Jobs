@@ -1,5 +1,5 @@
 # ND_Jobs
-![NDJobs](https://user-images.githubusercontent.com/79053058/194765042-6bd4c41b-1e55-4f91-90dd-57415db0733e.png)
+![NDJobs](https://user-images.githubusercontent.com/79053058/196249682-5a585dc0-a91a-4f3d-98b1-334e09ddf270.png)
 
 Collection of jobs converted to ND Framework.
 This is still work on progress.
