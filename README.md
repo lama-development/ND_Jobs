@@ -5,7 +5,7 @@ Collection of jobs converted to ND Framework.
 This is still work on progress.
 
 > **Warning**  
-> All of the server events to pay the player **do not** validate the client request as of now.  
+> All of the server events to pay the player **do not** validate the client request as of now (except the DrugTrafficking job). 
 > This could result in exploiters giving themselves as much money as they want by calling the event.  
 > Use at your own risk.
 
