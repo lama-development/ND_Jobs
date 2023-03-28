@@ -5,7 +5,7 @@ Do not edit below if you don't know what you are doing
 ]] --
 
 -- ND_Framework exports (edit with your framework's)
-local NDCore = exports["ND_Core"]:GetCoreObject()
+NDCore = exports["ND_Core"]:GetCoreObject()
 
 -- variables, do not touch
 local deliveries = {}
