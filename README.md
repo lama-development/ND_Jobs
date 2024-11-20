@@ -18,4 +18,4 @@ I am not the author of these scripts. I simply converted them to be compatible w
 
 > [!TIP]
 > If you want a job compatible with ND Framework and with protection against possible exploited client events, check my latest release:
-> https://github.com/ItzEndah/TruckJob
+> [https://github.com/lama-development/TruckJob](https://github.com/lama-development/TruckJob)
